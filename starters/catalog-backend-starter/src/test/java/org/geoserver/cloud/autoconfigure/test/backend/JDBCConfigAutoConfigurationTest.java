@@ -6,9 +6,11 @@ package org.geoserver.cloud.autoconfigure.test.backend;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
@@ -22,6 +24,7 @@ import org.geoserver.cloud.config.jdbcconfig.JDBCConfigBackendConfigurer;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.jdbcstore.JDBCResourceStore;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -34,6 +37,8 @@ import org.springframework.boot.test.context.SpringBootTest;
     properties = {"geoserver.backend.jdbcconfig.enabled=true"}
 )
 public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
+
+    public @Rule CatalogTestData data = CatalogTestData.empty(() -> catalog, () -> geoServer);
 
     public @Test void testCatalog() {
         assertThat(rawCatalog, instanceOf(CatalogImpl.class));
@@ -71,5 +76,7 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
         catalog.add(ws);
         WorkspaceInfo readback = catalog.getWorkspaceByName("test-ws");
         assertEquals(ws, readback);
+        catalog.remove(ws);
+        assertNull(catalog.getWorkspaceByName("test-ws"));
     }
 }
